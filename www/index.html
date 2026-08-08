@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3C5844">
+<title>Bended Knee</title>
+<meta name="description" content="A private place to keep your prayer requests, pray without ceasing, and remember what God has answered.">
+
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bended Knee">
+<script>
+// Apply the saved theme before first paint to avoid a light-mode flash.
+(function(){
+  try{
+    var raw = localStorage.getItem("bendedknee_data_v1");
+    var mode = raw ? (JSON.parse(raw).settings || {}).theme : null;
+    var resolved = (mode === "dark" || mode === "light") ? mode
+      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", resolved);
+  }catch(e){}
+})();
+</script>
+<style>
+  :root{
+    --bone:#F2EEE1;
+    --surface:#FBF9F1;
+    --surface-raised:#FFFFFF;
+    --ink:#232B23;
+    --ink-soft:#5B6358;
+    --hairline:#D8D0BC;
+    --brand:#3C5844;
+    --brand-dark:#2A3F31;
+    --gold:#B8862E;
+    --gold-soft:#F1E3C6;
+    --rust:#A6472B;
+    --rust-soft:#F3DED6;
+    --sage:#6E8560;
+    --sage-soft:#E1E8DA;
+    --text-accent:#2A3F31;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(35,43,35,0.06), 0 4px 14px rgba(35,43,35,0.06);
+    --font-display: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  :root[data-theme="dark"]{
+    --bone:#181D18;
+    --surface:#20261F;
+    --surface-raised:#262D24;
+    --ink:#EDEAE0;
+    --ink-soft:#A3AC9C;
+    --hairline:#3A4238;
+    --gold:#E0AC4E;
+    --gold-soft:#3D3018;
+    --rust:#E08165;
+    --rust-soft:#3E241D;
+    --sage:#9AB68D;
+    --sage-soft:#253226;
+    --text-accent:#9DC49A;
+    --shadow:0 1px 2px rgba(0,0,0,0.35), 0 4px 14px rgba(0,0,0,0.4);
+  }
+  html{background:var(--bone);}
+  html,body{transition:background-color 0.15s ease;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bone);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:78px;
+    min-height:100vh;
+  }
+  h1,h2,h3,h4{
+    font-family:var(--font-display);
+    font-weight:600;
+    margin:0 0 4px 0;
+    color:var(--text-accent);
+    letter-spacing:0.01em;
+  }
+  p{margin:0;}
+  button{font-family:inherit;}
+  .app-header{
+    padding:22px 18px 14px 18px;
+    background:linear-gradient(180deg, var(--brand) 0%, var(--brand-dark) 100%);
+    color:#F2EEE1;
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .app-header .brand{display:flex; align-items:center; gap:10px;}
+  .app-header .brand svg{width:26px; height:26px; stroke:#E8C275; fill:none; stroke-width:1.6; flex-shrink:0;}
+  .app-header h1{color:#F6F2E5; font-size:1.5rem; margin:0;}
+  .app-header .tagline{font-size:0.72rem; color:#CFE0CF; letter-spacing:0.04em; text-transform:uppercase; margin-top:2px;}
+  main{padding:16px 14px 24px 14px; max-width:640px; margin:0 auto;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .card{
+    background:var(--surface-raised);
+    border:1px solid var(--hairline);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    margin-bottom:12px;
+    box-shadow:var(--shadow);
+  }
+  .card.tight{padding:12px 14px;}
+  .section-title{display:flex; align-items:baseline; justify-content:space-between; margin:22px 0 10px 0;}
+  .section-title h2{font-size:1.05rem;}
+  .section-title .count{font-size:0.75rem; color:var(--ink-soft); font-family:var(--font-body);}
+  .section-title:first-of-type{margin-top:4px;}
+
+  .empty-state{text-align:center; padding:28px 16px; color:var(--ink-soft); font-size:0.9rem;}
+  .empty-state .eyebrow{font-family:var(--font-display); font-size:1rem; color:var(--text-accent); display:block; margin-bottom:4px;}
+
+  .row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:11px 0; border-bottom:1px solid var(--hairline); cursor:pointer;
+  }
+  .row:last-child{border-bottom:none;}
+  .row-main{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .row-title{font-weight:600; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .row-sub{font-size:0.78rem; color:var(--ink-soft);}
+  .badge{
+    font-size:0.72rem; font-weight:700; padding:4px 9px; border-radius:99px;
+    white-space:nowrap; margin-left:10px; display:flex; align-items:center; gap:5px; flex-shrink:0;
+  }
+  .badge.ok{background:var(--sage-soft); color:var(--sage);}
+  .badge.warn{background:var(--gold-soft); color:var(--gold);}
+  .badge.overdue{background:var(--rust-soft); color:var(--rust);}
+  .badge.neutral{background:var(--hairline); color:var(--ink-soft);}
+  .badge.answered{background:var(--gold-soft); color:var(--gold);}
+  .pin-dot{width:6px; height:6px; border-radius:50%; background:var(--gold); display:inline-block; margin-right:5px; flex-shrink:0;}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    border:none; border-radius:10px; padding:10px 16px; font-size:0.88rem; font-weight:600;
+    cursor:pointer; transition:transform 0.05s ease, opacity 0.15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn:disabled{opacity:0.55; cursor:not-allowed;}
+  .btn:disabled:active{transform:none;}
+  .btn-primary{background:var(--brand); color:#F6F2E5;}
+  .btn-secondary{background:var(--surface); color:var(--text-accent); border:1px solid var(--hairline);}
+  .btn-ghost{background:transparent; color:var(--text-accent); padding:8px 10px;}
+  .btn-danger{background:var(--rust-soft); color:var(--rust);}
+  .btn-gold{background:var(--gold-soft); color:var(--gold);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:6px 11px; font-size:0.78rem;}
+  .btn-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .fab{
+    position:fixed; bottom:86px; right:18px; width:54px; height:54px; border-radius:50%;
+    background:var(--brand); color:#F6F2E5; border:none; box-shadow:0 4px 16px rgba(42,63,49,0.35);
+    cursor:pointer; z-index:15; line-height:1; padding:0; display:flex; align-items:center; justify-content:center;
+  }
+  .fab svg{width:24px; height:24px; stroke:#F6F2E5; fill:none; stroke-width:2.2; stroke-linecap:round; display:block;}
+
+  .bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; background:var(--surface-raised);
+    border-top:1px solid var(--hairline); display:flex; justify-content:space-around;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom, 0px)) 4px; z-index:20;
+  }
+  .nav-btn{
+    background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:6px 8px; border-radius:10px; color:var(--ink-soft); font-size:0.66rem; font-weight:600; letter-spacing:0.02em; flex:1;
+  }
+  .nav-btn svg{width:21px; height:21px; stroke:var(--ink-soft); fill:none; stroke-width:1.7;}
+  .nav-btn.active{color:var(--text-accent);}
+  .nav-btn.active svg{stroke:var(--text-accent);}
+
+  label{display:block; font-size:0.78rem; font-weight:700; color:var(--ink-soft); margin:10px 0 4px 0; text-transform:uppercase; letter-spacing:0.03em;}
+  label:first-child{margin-top:0;}
+  input[type="text"], input[type="date"], input[type="number"], textarea, select{
+    width:100%; font-family:inherit; font-size:0.95rem; padding:9px 12px;
+    border:1px solid var(--hairline); border-radius:10px; background:var(--surface); color:var(--ink);
+  }
+  textarea{min-height:80px; resize:vertical;}
+  input:focus, textarea:focus, select:focus{outline:2px solid var(--brand); outline-offset:1px;}
+  .checkbox-row{display:flex; align-items:center; gap:8px; margin-top:10px;}
+  .checkbox-row input{width:auto;}
+  .checkbox-row label{margin:0; text-transform:none; font-weight:600; font-size:0.85rem; color:var(--ink);}
+  .search-input{
+    width:100%; font-family:inherit; font-size:0.92rem; padding:10px 12px 10px 34px;
+    border:1px solid var(--hairline); border-radius:10px;
+    background:var(--surface-raised) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%235B6358" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>') no-repeat 10px center;
+    background-size:15px 15px; color:var(--ink); margin-bottom:14px; -webkit-appearance:none;
+  }
+  .search-input::-webkit-search-cancel-button{ -webkit-appearance:none; }
+  .field-hint{font-size:0.72rem; color:var(--ink-soft); margin-top:4px;}
+
+  .segmented{display:flex; gap:6px; background:var(--surface); border:1px solid var(--hairline); border-radius:10px; padding:4px; margin-bottom:14px;}
+  .segmented button{flex:1; background:none; border:none; border-radius:7px; padding:8px 6px; font-size:0.8rem; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .segmented button.active{background:var(--surface-raised); color:var(--text-accent); box-shadow:var(--shadow);}
+
+  .sheet-overlay{position:fixed; inset:0; background:rgba(33,41,31,0.42); display:none; align-items:flex-end; justify-content:center; z-index:50;}
+  .sheet-overlay.active{display:flex;}
+  .sheet{
+    background:var(--bone); width:100%; max-width:640px; max-height:88vh; overflow-y:auto;
+    border-radius:20px 20px 0 0; padding:16px 18px calc(20px + env(safe-area-inset-bottom, 0px)) 18px;
+    box-shadow:0 -4px 24px rgba(0,0,0,0.2);
+  }
+  .sheet-handle{width:38px; height:4px; background:var(--hairline); border-radius:99px; margin:0 auto 12px auto;}
+  .sheet-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .sheet-header h3{font-size:1.15rem;}
+  .close-x{background:none; border:none; font-size:1.3rem; color:var(--ink-soft); cursor:pointer; padding:4px 8px;}
+
+  .back-link{background:none; border:none; color:var(--text-accent); font-weight:700; font-size:0.85rem; cursor:pointer; padding:6px 0 12px 0; display:flex; align-items:center; gap:4px;}
+
+  .stat-row{display:flex; gap:10px; margin-bottom:6px;}
+  .stat-box{flex:1; background:var(--surface-raised); border:1px solid var(--hairline); border-radius:12px; padding:12px; text-align:center;}
+  .stat-box .num{font-family:var(--font-display); font-size:1.5rem; color:var(--text-accent); display:flex; align-items:center; justify-content:center; gap:4px;}
+  .stat-box .num svg{width:16px; height:16px; stroke:var(--gold); fill:var(--gold-soft);}
+  .stat-box .lbl{font-size:0.68rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.03em; margin-top:2px; display:block;}
+
+  .verse-card{
+    background:linear-gradient(135deg, var(--gold-soft) 0%, var(--surface-raised) 70%);
+    border:1px solid var(--hairline); border-left:3px solid var(--gold);
+    border-radius:var(--radius); padding:14px 16px; margin-bottom:18px; box-shadow:var(--shadow);
+  }
+  .verse-text{font-family:var(--font-display); font-size:1.02rem; line-height:1.45; color:var(--ink); font-style:italic;}
+  .verse-ref{font-size:0.74rem; color:var(--gold); font-weight:700; margin-top:6px; text-transform:uppercase; letter-spacing:0.03em;}
+
+  .history-list{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .history-chip{font-size:0.72rem; background:var(--sage-soft); color:var(--sage); padding:3px 9px; border-radius:99px;}
+
+  .journal-entry{border-bottom:1px solid var(--hairline); padding:12px 0;}
+  .journal-entry:last-child{border-bottom:none;}
+  .journal-date{font-size:0.72rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;}
+  .journal-text{font-size:0.92rem; line-height:1.5; white-space:pre-wrap;}
+
+  .setting-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0;}
+  .setting-row + .setting-row{border-top:1px solid var(--hairline);}
+  .setting-row-text{flex:1; min-width:0;}
+  .setting-row-text .title{font-weight:700; font-size:0.95rem; margin-bottom:2px;}
+  .setting-row-text .desc{font-size:0.8rem; color:var(--ink-soft); line-height:1.35;}
+  .btn-outline{background:none; border:1px solid var(--hairline); color:var(--ink); font-weight:700; font-size:0.85rem; padding:8px 16px; border-radius:10px; cursor:pointer; flex-shrink:0;}
+  .btn-outline:active{background:var(--surface-raised);}
+
+  .toast{
+    position:fixed; bottom:96px; left:50%; transform:translateX(-50%);
+    background:var(--brand-dark); color:#F6F2E5; padding:10px 18px; border-radius:10px;
+    font-size:0.85rem; z-index:60; box-shadow:0 4px 16px rgba(0,0,0,0.25);
+    opacity:0; pointer-events:none; transition:opacity 0.25s ease;
+  }
+  .toast.show{opacity:1;}
+
+  @media (prefers-reduced-motion: reduce){ .btn, .toast{transition:none;} }
+  a{color:var(--text-accent);}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <svg viewBox="0 0 24 24"><path d="M8 21c0-3 1.5-5 4-6.5C14.5 16 16 18 16 21"/><path d="M9 14.5V9a3 3 0 0 1 6 0v5.5"/><path d="M12 2v3"/><path d="M6 21h12"/></svg>
+    <div>
+      <h1>Bended Knee</h1>
+      <div class="tagline">Pray without ceasing</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- TODAY -->
+  <section class="view active" id="view-today">
+    <div class="verse-card" id="verse-card"></div>
+    <div class="stat-row">
+      <div class="stat-box"><span class="num" id="stat-active">0</span><span class="lbl">Active</span></div>
+      <div class="stat-box"><span class="num" id="stat-today">0</span><span class="lbl">Prayed today</span></div>
+      <div class="stat-box"><span class="num" id="stat-streak"></span><span class="lbl">Day streak</span></div>
+    </div>
+
+    <div class="section-title"><h2>Needs prayer</h2><span class="count" id="needs-count"></span></div>
+    <div class="card tight" id="needs-list"></div>
+
+    <div class="section-title"><h2>Prayed today</h2><span class="count" id="prayed-count"></span></div>
+    <div class="card tight" id="prayed-list"></div>
+
+    <div class="section-title"><h2>Recently answered</h2></div>
+    <div class="card tight" id="recent-answered-list"></div>
+  </section>
+
+  <!-- REQUESTS -->
+  <section class="view" id="view-requests">
+    <input type="search" class="search-input" id="requests-search" placeholder="Search requests…" oninput="renderRequests()">
+    <div class="segmented" id="requests-filter">
+      <button data-filter="active" class="active" onclick="setRequestsFilter('active')">Active</button>
+      <button data-filter="answered" onclick="setRequestsFilter('answered')">Answered</button>
+      <button data-filter="all" onclick="setRequestsFilter('all')">All</button>
+    </div>
+    <div class="card tight" id="requests-list"></div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section class="view" id="view-journal">
+    <div class="section-title"><h2>Prayer journal</h2><span class="count" id="journal-count"></span></div>
+    <div class="card tight" id="journal-list"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="view-settings">
+    <div class="section-title"><h2>Preferences</h2></div>
+    <div class="card">
+      <div class="setting-row">
+        <div class="setting-row-text"><div class="title">Theme</div><div class="desc">Light, dark, or match your device.</div></div>
+      </div>
+      <div class="segmented" id="theme-toggle"></div>
+      <div class="setting-row">
+        <div class="setting-row-text"><div class="title">Flag as needing prayer after</div><div class="desc">Requests not prayed for in this many days will surface at the top of Today.</div></div>
+      </div>
+      <input type="number" id="setting-threshold" min="1" max="60" style="max-width:100px;">
+    </div>
+
+    <div class="section-title"><h2>Backup</h2></div>
+    <div class="card">
+      <div class="setting-row">
+        <div class="setting-row-text"><div class="title">Export backup</div><div class="desc">Save every request, journal entry, and answered prayer to a file.</div></div>
+        <button class="btn-outline" onclick="exportData()">Export</button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-row-text"><div class="title">Import backup</div><div class="desc">Restore from a previously exported backup file.</div></div>
+        <button class="btn-outline" onclick="document.getElementById('import-file').click()">Import</button>
+      </div>
+      <input type="file" id="import-file" accept=".txt,.json,text/plain,application/json" style="display:none;" onchange="importData(event)">
+    </div>
+    <p style="font-size:0.78rem; color:var(--ink-soft); margin:8px 2px 0 2px;">Everything stays on this device only — export regularly, especially before clearing browser data.</p>
+
+    <div class="section-title"><h2>About</h2></div>
+    <div class="card" style="font-size:0.85rem; color:var(--ink-soft); line-height:1.5;">
+      <p>"Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God." &mdash; Philippians 4:6</p>
+      <p style="margin-top:10px;">Bended Knee v1.0 &mdash; all data is private and stored only on this device.</p>
+    </div>
+  </section>
+
+</main>
+
+<button class="fab" id="fab" onclick="handleFabTap()" aria-label="Add">
+  <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-view="today" onclick="showView('today')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.5M12 19v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2.5 12H5M19 12h2.5M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>
+    Today
+  </button>
+  <button class="nav-btn" data-view="requests" onclick="showView('requests')">
+    <svg viewBox="0 0 24 24"><path d="M9 11.5l1.8 1.8L15.5 9"/><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/></svg>
+    Requests
+  </button>
+  <button class="nav-btn" data-view="journal" onclick="showView('journal')">
+    <svg viewBox="0 0 24 24"><path d="M4 4.5c2.5-1 5-1 8 0 3-1 5.5-1 8 0v14.5c-2.5-1-5-1-8 0-3-1-5.5-1-8 0z"/><path d="M12 4.5v14.5"/></svg>
+    Journal
+  </button>
+  <button class="nav-btn" data-view="settings" onclick="showView('settings')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.5-2.4 1a7.6 7.6 0 0 0-2.6-1.5L14 2h-4l-.4 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.4-1-2 3.5 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.5 2.4-1a7.6 7.6 0 0 0 2.6 1.5L10 22h4l.4-2.5a7.6 7.6 0 0 0 2.6-1.5l2.4 1 2-3.5-2-1.5z"/></svg>
+    Settings
+  </button>
+</nav>
+
+<div class="sheet-overlay" id="sheet-overlay">
+  <div class="sheet" id="sheet-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   VERSES (KJV — public domain)
+   ========================================================= */
+var VERSES = [
+  { text:"Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.", ref:"Philippians 4:6" },
+  { text:"The effectual fervent prayer of a righteous man availeth much.", ref:"James 5:16" },
+  { text:"Pray without ceasing.", ref:"1 Thessalonians 5:17" },
+  { text:"Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you.", ref:"Matthew 7:7" },
+  { text:"The LORD is nigh unto all them that call upon him, to all that call upon him in truth.", ref:"Psalm 145:18" },
+  { text:"And this is the confidence that we have in him, that, if we ask any thing according to his will, he heareth us.", ref:"1 John 5:14" },
+  { text:"Call unto me, and I will answer thee, and shew thee great and mighty things, which thou knowest not.", ref:"Jeremiah 33:3" },
+  { text:"What things soever ye desire, when ye pray, believe that ye receive them, and ye shall have them.", ref:"Mark 11:24" },
+  { text:"The righteous cry, and the LORD heareth, and delivereth them out of all their troubles.", ref:"Psalm 34:17" },
+  { text:"Continue in prayer, and watch in the same with thanksgiving.", ref:"Colossians 4:2" },
+  { text:"In every thing give thanks: for this is the will of God in Christ Jesus concerning you.", ref:"1 Thessalonians 5:18" },
+  { text:"Let us therefore come boldly unto the throne of grace, that we may obtain mercy, and find grace to help in time of need.", ref:"Hebrews 4:16" }
+];
+
+function verseOfTheDay(){
+  var d = new Date();
+  var dayNum = Math.floor(d.getTime() / 86400000);
+  return VERSES[dayNum % VERSES.length];
+}
+
+/* =========================================================
+   CATEGORIES
+   ========================================================= */
+var CATEGORIES = ["Family","Personal","Health","Salvation","Guidance","Provision","Relationships","Church","World & Missions","Thanksgiving","Other"];
+
+/* =========================================================
+   STORAGE
+   ========================================================= */
+var STORAGE_KEY = "bendedknee_data_v1";
+
+function defaultData(){
+  return {
+    // {id, text, category, dateAdded, standing, pinned, status:'active'|'answered', history:[isoDates], answeredDate, answerNote}
+    requests: [],
+    // {id, date, text, linkedRequestId}
+    journal: [],
+    settings: { theme:"system", thresholdDays:5 }
+  };
+}
+
+var DATA = loadData();
+
+function loadData(){
+  try{
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultData();
+    var parsed = JSON.parse(raw);
+    var d = defaultData();
+    for(var k in d){ if(parsed[k] !== undefined) d[k] = parsed[k]; }
+    if(!d.settings) d.settings = { theme:"system", thresholdDays:5 };
+    if(d.settings.theme === undefined) d.settings.theme = "system";
+    if(d.settings.thresholdDays === undefined) d.settings.thresholdDays = 5;
+    d.requests.forEach(function(r){ if(!r.history) r.history = []; });
+    return d;
+  }catch(e){
+    console.error("Failed to load data, starting fresh.", e);
+    return defaultData();
+  }
+}
+
+function saveData(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  }catch(e){
+    console.error("Failed to save data", e);
+    showToast("Couldn't save — storage may be full.");
+  }
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+/* =========================================================
+   DATE HELPERS
+   ========================================================= */
+function todayISO(){
+  var d = new Date();
+  return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate());
+}
+function pad2(n){ return n < 10 ? "0"+n : ""+n; }
+
+function daysBetween(isoEarlier, isoLater){
+  var a = new Date(isoEarlier + "T00:00:00");
+  var b = new Date(isoLater + "T00:00:00");
+  return Math.round((b - a) / 86400000);
+}
+
+function formatDateDisplay(iso){
+  if(!iso) return "";
+  var d = new Date(iso + "T00:00:00");
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+}
+
+function addDaysISO(iso, days){
+  var d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + days);
+  return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate());
+}
+
+function escapeHTML(s){
+  if(s === null || s === undefined) return "";
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+
+/* =========================================================
+   DATA ACCESSORS
+   ========================================================= */
+function getRequest(id){ return DATA.requests.find(function(r){ return r.id === id; }); }
+
+function lastPrayedDate(r){
+  if(!r.history || r.history.length === 0) return null;
+  var sorted = r.history.slice().sort();
+  return sorted[sorted.length - 1];
+}
+
+function prayedToday(r){
+  return (r.history || []).indexOf(todayISO()) !== -1;
+}
+
+function streakCount(){
+  var dates = {};
+  DATA.requests.forEach(function(r){ (r.history||[]).forEach(function(d){ dates[d] = true; }); });
+  DATA.journal.forEach(function(j){ dates[j.date] = true; });
+  var cursor = todayISO();
+  if(!dates[cursor]) cursor = addDaysISO(cursor, -1);
+  var count = 0;
+  while(dates[cursor]){ count++; cursor = addDaysISO(cursor, -1); }
+  return count;
+}
+
+/* =========================================================
+   VIEW ROUTING
+   ========================================================= */
+var currentView = "today";
+var requestsFilter = "active";
+
+function applyViewDom(name){
+  document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+  var target = document.getElementById("view-" + name);
+  if(target) target.classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(function(b){
+    b.classList.toggle("active", b.getAttribute("data-view") === name);
+  });
+  updateFabVisibility();
+}
+
+function showView(name){
+  currentView = name;
+  applyViewDom(name);
+  render();
+  window.scrollTo(0,0);
+  pushNavStateIfNeeded();
+}
+window.showView = showView;
+
+function setRequestsFilter(f){
+  requestsFilter = f;
+  document.querySelectorAll("#requests-filter button").forEach(function(b){
+    b.classList.toggle("active", b.getAttribute("data-filter") === f);
+  });
+  renderRequests();
+}
+window.setRequestsFilter = setRequestsFilter;
+
+/* =========================================================
+   NATIVE BACK BUTTON SUPPORT
+   ========================================================= */
+var suppressHistoryPush = false;
+var sheetHasHistoryEntry = false;
+
+function currentNavState(){ return { nav:true, view: currentView }; }
+
+function pushNavStateIfNeeded(){
+  if(suppressHistoryPush) return;
+  var s = currentNavState();
+  var top = history.state;
+  if(top && top.nav && top.view === s.view) return;
+  history.pushState(s, "");
+}
+
+window.addEventListener("popstate", function(e){
+  suppressHistoryPush = true;
+  var overlay = document.getElementById("sheet-overlay");
+  if(overlay && overlay.classList.contains("active")){
+    overlay.classList.remove("active");
+    document.getElementById("sheet-content").innerHTML = "";
+    sheetHasHistoryEntry = false;
+  }
+  var s = e.state;
+  if(s && s.nav){
+    currentView = s.view;
+    applyViewDom(currentView);
+    render();
+    window.scrollTo(0,0);
+  }
+  suppressHistoryPush = false;
+});
+
+function updateFabVisibility(){
+  var fab = document.getElementById("fab");
+  var visibleOn = ["requests","journal"];
+  fab.style.display = visibleOn.indexOf(currentView) !== -1 ? "flex" : "none";
+}
+
+function handleFabTap(){
+  if(currentView === "requests") openRequestFormSheet();
+  else if(currentView === "journal") openJournalFormSheet();
+}
+window.handleFabTap = handleFabTap;
+
+/* =========================================================
+   RENDER: MASTER
+   ========================================================= */
+function render(){
+  if(currentView === "today") renderToday();
+  else if(currentView === "requests") renderRequests();
+  else if(currentView === "journal") renderJournal();
+  else if(currentView === "settings") renderSettings();
+}
+
+/* =========================================================
+   TODAY
+   ========================================================= */
+function renderToday(){
+  var v = verseOfTheDay();
+  document.getElementById("verse-card").innerHTML =
+    '<div class="verse-text">&ldquo;'+escapeHTML(v.text)+'&rdquo;</div><div class="verse-ref">'+escapeHTML(v.ref)+'</div>';
+
+  var today = todayISO();
+  var threshold = DATA.settings.thresholdDays || 5;
+  var active = DATA.requests.filter(function(r){ return r.status === "active"; });
+
+  document.getElementById("stat-active").textContent = active.length;
+  document.getElementById("stat-today").textContent = active.filter(prayedToday).length;
+
+  var streak = streakCount();
+  var flameSvg = streak > 0 ? '<svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M12 22c4 0 7-2.7 7-6.8 0-3-2-5-3-7.2-.6 1.6-1.6 2.4-2.4 2.4-1 0-1-1.6-1-3C10.5 3.5 8 2 8 2c.6 2-1.5 3.6-2.8 6C4 10 5 12 5 14.2 5 19.3 8 22 12 22Z"/></svg>' : '';
+  document.getElementById("stat-streak").innerHTML = flameSvg + streak;
+
+  // Needs prayer: active requests not prayed today, worst-neglected first
+  var needs = active.filter(function(r){ return !prayedToday(r); });
+  needs.sort(function(a,b){
+    if(!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+    var la = lastPrayedDate(a), lb = lastPrayedDate(b);
+    var da = la ? daysBetween(la, today) : 99999;
+    var db = lb ? daysBetween(lb, today) : 99999;
+    return db - da;
+  });
+  document.getElementById("needs-count").textContent = needs.length ? needs.length + " waiting" : "";
+  document.getElementById("needs-list").innerHTML = needs.length === 0
+    ? '<div class="empty-state"><span class="eyebrow">All caught up</span>Every active request has been prayed for today.</div>'
+    : needs.map(function(r){
+        var last = lastPrayedDate(r);
+        var days = last ? daysBetween(last, today) : null;
+        var sub = days === null ? "Never prayed for yet" : (days === 0 ? "Prayed for today" : days + " day" + (days===1?"":"s") + " since last prayed");
+        var badgeClass = days === null || days >= threshold ? "overdue" : (days >= Math.floor(threshold*0.6) ? "warn" : "neutral");
+        var badgeLabel = days === null ? "New" : days + "d";
+        return '<div class="row" onclick="openRequestDetail(\''+r.id+'\')">'
+          + '<div class="row-main">'
+          + '<span class="row-title">'+(r.pinned ? '<span class="pin-dot"></span>' : '')+escapeHTML(r.text)+'</span>'
+          + '<span class="row-sub">'+escapeHTML(r.category)+' &middot; '+sub+'</span>'
+          + '</div>'
+          + '<div style="display:flex; align-items:center; gap:8px;">'
+          + '<span class="badge '+badgeClass+'">'+badgeLabel+'</span>'
+          + '<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); markPrayed(\''+r.id+'\')">Prayed</button>'
+          + '</div></div>';
+      }).join("");
+
+  var prayed = active.filter(prayedToday);
+  document.getElementById("prayed-count").textContent = prayed.length ? prayed.length : "";
+  document.getElementById("prayed-list").innerHTML = prayed.length === 0
+    ? '<div class="empty-state">Nothing logged yet today.</div>'
+    : prayed.map(function(r){
+        return '<div class="row" onclick="openRequestDetail(\''+r.id+'\')">'
+          + '<div class="row-main"><span class="row-title">&#10003; '+escapeHTML(r.text)+'</span><span class="row-sub">'+escapeHTML(r.category)+'</span></div>'
+          + '</div>';
+      }).join("");
+
+  var recentAnswered = DATA.requests.filter(function(r){
+    return r.status === "answered" && r.answeredDate && daysBetween(r.answeredDate, today) <= 14;
+  }).sort(function(a,b){ return a.answeredDate < b.answeredDate ? 1 : -1; });
+  document.getElementById("recent-answered-list").innerHTML = recentAnswered.length === 0
+    ? '<div class="empty-state">No prayers marked answered in the last two weeks.</div>'
+    : recentAnswered.map(function(r){
+        return '<div class="row" onclick="openRequestDetail(\''+r.id+'\')">'
+          + '<div class="row-main"><span class="row-title">'+escapeHTML(r.text)+'</span><span class="row-sub">Answered '+formatDateDisplay(r.answeredDate)+'</span></div>'
+          + '<span class="badge answered">&#10003; Answered</span>'
+          + '</div>';
+      }).join("");
+}
+
+function markPrayed(id){
+  var r = getRequest(id);
+  if(!r) return;
+  var today = todayISO();
+  if(r.history.indexOf(today) === -1) r.history.push(today);
+  saveData();
+  showToast("Logged in prayer.");
+  render();
+}
+window.markPrayed = markPrayed;
+
+/* =========================================================
+   REQUESTS
+   ========================================================= */
+function renderRequests(){
+  var q = (document.getElementById("requests-search").value || "").toLowerCase().trim();
+  var list = DATA.requests.slice();
+
+  if(requestsFilter === "active") list = list.filter(function(r){ return r.status === "active"; });
+  else if(requestsFilter === "answered") list = list.filter(function(r){ return r.status === "answered"; });
+
+  if(q){
+    list = list.filter(function(r){
+      return r.text.toLowerCase().indexOf(q) !== -1 || r.category.toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  list.sort(function(a,b){
+    if(!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+    return a.dateAdded < b.dateAdded ? 1 : -1;
+  });
+
+  var el = document.getElementById("requests-list");
+  if(list.length === 0){
+    el.innerHTML = '<div class="empty-state"><span class="eyebrow">Nothing here yet</span>Tap the + button to add a prayer request.</div>';
+    return;
+  }
+  var today = todayISO();
+  el.innerHTML = list.map(function(r){
+    var badge;
+    if(r.status === "answered"){
+      badge = '<span class="badge answered">&#10003; Answered</span>';
+    } else {
+      badge = prayedToday(r) ? '<span class="badge ok">Prayed today</span>' : '<span class="badge neutral">'+ (r.standing ? "Standing" : "Active") +'</span>';
+    }
+    var sub = r.status === "answered" ? "Answered " + formatDateDisplay(r.answeredDate) : r.category + (r.standing ? " · Standing" : "");
+    return '<div class="row" onclick="openRequestDetail(\''+r.id+'\')">'
+      + '<div class="row-main"><span class="row-title">'+(r.pinned ? '<span class="pin-dot"></span>' : '')+escapeHTML(r.text)+'</span><span class="row-sub">'+escapeHTML(sub)+'</span></div>'
+      + badge
+      + '</div>';
+  }).join("");
+}
+
+function openRequestFormSheet(existingId){
+  var r = existingId ? getRequest(existingId) : null;
+  var catOptions = CATEGORIES.map(function(c){
+    return '<option value="'+c+'"'+(r && r.category===c ? " selected":"")+'>'+c+'</option>';
+  }).join("");
+  openSheet('<div class="sheet-handle"></div>'
+    + '<div class="sheet-header"><h3>'+(r?"Edit request":"New prayer request")+'</h3><button class="close-x" onclick="closeSheet()">&#10005;</button></div>'
+    + '<label>What do you want to pray for?</label>'
+    + '<textarea id="req-text" placeholder="e.g. Wisdom for the elder team as we plan the fall calendar">'+(r?escapeHTML(r.text):"")+'</textarea>'
+    + '<label>Category</label>'
+    + '<select id="req-category">'+catOptions+'</select>'
+    + '<div class="checkbox-row"><input type="checkbox" id="req-standing" '+(r&&r.standing?"checked":"")+'><label for="req-standing">Standing request (ongoing, no single answer expected)</label></div>'
+    + '<div class="checkbox-row"><input type="checkbox" id="req-pinned" '+(r&&r.pinned?"checked":"")+'><label for="req-pinned">Pin to top of lists</label></div>'
+    + '<div class="btn-row"><button class="btn btn-primary btn-block" onclick="saveRequest('+(r?"'"+r.id+"'":"null")+')">'+(r?"Save changes":"Add request")+'</button></div>');
+}
+window.openRequestFormSheet = openRequestFormSheet;
+
+function saveRequest(id){
+  var text = document.getElementById("req-text").value.trim();
+  if(!text){ showToast("Describe what you'd like to pray for first."); return; }
+  var category = document.getElementById("req-category").value;
+  var standing = document.getElementById("req-standing").checked;
+  var pinned = document.getElementById("req-pinned").checked;
+
+  if(id){
+    var r = getRequest(id);
+    r.text = text; r.category = category; r.standing = standing; r.pinned = pinned;
+  } else {
+    DATA.requests.push({
+      id: uid(), text: text, category: category, dateAdded: todayISO(),
+      standing: standing, pinned: pinned, status: "active",
+      history: [], answeredDate: null, answerNote: ""
+    });
+  }
+  saveData();
+  closeSheet();
+  showToast(id ? "Request updated." : "Request added.");
+  render();
+}
+window.saveRequest = saveRequest;
+
+function openRequestDetail(id){
+  var r = getRequest(id);
+  if(!r) return;
+  var today = todayISO();
+  var last = lastPrayedDate(r);
+  var totalCount = (r.history||[]).length;
+  var historyChips = (r.history||[]).slice().sort().reverse().slice(0,12).map(function(d){
+    return '<span class="history-chip">'+formatDateDisplay(d)+'</span>';
+  }).join("");
+
+  var body = '<div class="sheet-handle"></div>'
+    + '<div class="sheet-header"><h3>'+(r.status==="answered"?"Answered prayer":"Prayer request")+'</h3><button class="close-x" onclick="closeSheet()">&#10005;</button></div>'
+    + '<p style="font-size:1rem; line-height:1.5; margin-bottom:6px;">'+escapeHTML(r.text)+'</p>'
+    + '<p style="font-size:0.78rem; color:var(--ink-soft); margin-bottom:2px;">'+escapeHTML(r.category)+(r.standing?" · Standing request":"")+' · Added '+formatDateDisplay(r.dateAdded)+'</p>';
+
+  if(r.status === "answered"){
+    body += '<div class="card tight" style="margin-top:14px; background:var(--gold-soft); border-color:var(--gold);">'
+      + '<div style="font-size:0.72rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">Answered '+formatDateDisplay(r.answeredDate)+'</div>'
+      + (r.answerNote ? '<div style="font-size:0.9rem; line-height:1.45;">'+escapeHTML(r.answerNote)+'</div>' : '<div style="font-size:0.85rem; color:var(--ink-soft);">No note added.</div>')
+      + '</div>';
+  }
+
+  body += '<p style="font-size:0.78rem; color:var(--ink-soft); margin-top:14px;">Prayed for '+totalCount+' time'+(totalCount===1?"":"s")+(last ? ", last on " + formatDateDisplay(last) : "")+'</p>';
+  if(historyChips) body += '<div class="history-list">'+historyChips+'</div>';
+
+  body += '<div class="btn-row">';
+  if(r.status === "active"){
+    body += '<button class="btn btn-primary" onclick="markPrayed(\''+r.id+'\'); closeSheet();">Prayed for this</button>';
+    body += '<button class="btn btn-gold" onclick="openAnswerFormSheet(\''+r.id+'\')">Mark answered</button>';
+  } else {
+    body += '<button class="btn btn-secondary" onclick="reopenRequest(\''+r.id+'\')">Still praying — reopen</button>';
+  }
+  body += '<button class="btn btn-secondary" onclick="openRequestFormSheet(\''+r.id+'\')">Edit</button>';
+  body += '<button class="btn btn-danger" onclick="deleteRequest(\''+r.id+'\')">Delete</button>';
+  body += '</div>';
+
+  openSheet(body);
+}
+window.openRequestDetail = openRequestDetail;
+
+function openAnswerFormSheet(id){
+  openSheet('<div class="sheet-handle"></div>'
+    + '<div class="sheet-header"><h3>Mark as answered</h3><button class="close-x" onclick="closeSheet()">&#10005;</button></div>'
+    + '<label>Date answered</label>'
+    + '<input type="date" id="ans-date" value="'+todayISO()+'">'
+    + '<label>How did God answer? — optional</label>'
+    + '<textarea id="ans-note" placeholder="A note for your own record, so you remember what He did"></textarea>'
+    + '<div class="btn-row"><button class="btn btn-primary btn-block" onclick="saveAnswer(\''+id+'\')">Save</button></div>');
+}
+window.openAnswerFormSheet = openAnswerFormSheet;
+
+function saveAnswer(id){
+  var r = getRequest(id);
+  if(!r) return;
+  var date = document.getElementById("ans-date").value || todayISO();
+  var note = document.getElementById("ans-note").value.trim();
+  r.status = "answered";
+  r.answeredDate = date;
+  r.answerNote = note;
+  saveData();
+  closeSheet();
+  showToast("Marked as answered — praise God.");
+  render();
+}
+window.saveAnswer = saveAnswer;
+
+function reopenRequest(id){
+  var r = getRequest(id);
+  if(!r) return;
+  r.status = "active";
+  saveData();
+  closeSheet();
+  showToast("Reopened for prayer.");
+  render();
+}
+window.reopenRequest = reopenRequest;
+
+function deleteRequest(id){
+  if(!confirm("Delete this prayer request? This can't be undone.")) return;
+  DATA.requests = DATA.requests.filter(function(r){ return r.id !== id; });
+  saveData();
+  closeSheet();
+  showToast("Request deleted.");
+  render();
+}
+window.deleteRequest = deleteRequest;
+
+/* =========================================================
+   JOURNAL
+   ========================================================= */
+function renderJournal(){
+  var entries = DATA.journal.slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  document.getElementById("journal-count").textContent = entries.length ? entries.length : "";
+  var el = document.getElementById("journal-list");
+  if(entries.length === 0){
+    el.innerHTML = '<div class="empty-state"><span class="eyebrow">A quiet page</span>Tap the + button to write your first entry.</div>';
+    return;
+  }
+  el.innerHTML = entries.map(function(j){
+    var linked = j.linkedRequestId ? getRequest(j.linkedRequestId) : null;
+    return '<div class="journal-entry" onclick="openJournalFormSheet(\''+j.id+'\')" style="cursor:pointer;">'
+      + '<div class="journal-date">'+formatDateDisplay(j.date)+(linked ? ' &middot; Re: '+escapeHTML(linked.text.slice(0,40))+(linked.text.length>40?"…":"") : '')+'</div>'
+      + '<div class="journal-text">'+escapeHTML(j.text)+'</div>'
+      + '</div>';
+  }).join("");
+}
+
+function openJournalFormSheet(existingId){
+  var j = existingId ? DATA.journal.find(function(x){ return x.id === existingId; }) : null;
+  var reqOptions = '<option value="">— Not linked to a request —</option>' + DATA.requests.map(function(r){
+    return '<option value="'+r.id+'"'+(j&&j.linkedRequestId===r.id?" selected":"")+'>'+escapeHTML(r.text.slice(0,50))+(r.text.length>50?"…":"")+'</option>';
+  }).join("");
+  openSheet('<div class="sheet-handle"></div>'
+    + '<div class="sheet-header"><h3>'+(j?"Edit entry":"New journal entry")+'</h3><button class="close-x" onclick="closeSheet()">&#10005;</button></div>'
+    + '<label>Date</label>'
+    + '<input type="date" id="jr-date" value="'+(j?j.date:todayISO())+'">'
+    + '<label>Entry</label>'
+    + '<textarea id="jr-text" placeholder="What is on your heart today?" style="min-height:140px;">'+(j?escapeHTML(j.text):"")+'</textarea>'
+    + '<label>Link to a request — optional</label>'
+    + '<select id="jr-link">'+reqOptions+'</select>'
+    + '<div class="btn-row"><button class="btn btn-primary btn-block" onclick="saveJournalEntry('+(j?"'"+j.id+"'":"null")+')">'+(j?"Save changes":"Add entry")+'</button></div>'
+    + (j ? '<div class="btn-row"><button class="btn btn-danger btn-block" onclick="deleteJournalEntry(\''+j.id+'\')">Delete entry</button></div>' : ''));
+}
+window.openJournalFormSheet = openJournalFormSheet;
+
+function saveJournalEntry(id){
+  var text = document.getElementById("jr-text").value.trim();
+  if(!text){ showToast("Write something first."); return; }
+  var date = document.getElementById("jr-date").value || todayISO();
+  var linkedRequestId = document.getElementById("jr-link").value || null;
+  if(id){
+    var j = DATA.journal.find(function(x){ return x.id === id; });
+    j.text = text; j.date = date; j.linkedRequestId = linkedRequestId;
+  } else {
+    DATA.journal.push({ id: uid(), date: date, text: text, linkedRequestId: linkedRequestId });
+  }
+  saveData();
+  closeSheet();
+  showToast(id ? "Entry updated." : "Entry added.");
+  render();
+}
+window.saveJournalEntry = saveJournalEntry;
+
+function deleteJournalEntry(id){
+  if(!confirm("Delete this journal entry? This can't be undone.")) return;
+  DATA.journal = DATA.journal.filter(function(j){ return j.id !== id; });
+  saveData();
+  closeSheet();
+  showToast("Entry deleted.");
+  render();
+}
+window.deleteJournalEntry = deleteJournalEntry;
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+function renderSettings(){
+  document.getElementById("setting-threshold").value = DATA.settings.thresholdDays;
+  renderThemeToggle();
+}
+
+function applyTheme(){
+  var mode = DATA.settings.theme || "system";
+  var resolved = mode === "system"
+    ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    : mode;
+  document.documentElement.setAttribute("data-theme", resolved);
+}
+
+function setTheme(mode){
+  DATA.settings.theme = mode;
+  saveData();
+  applyTheme();
+  renderThemeToggle();
+}
+window.setTheme = setTheme;
+
+function renderThemeToggle(){
+  var el = document.getElementById("theme-toggle");
+  if(!el) return;
+  var mode = DATA.settings.theme || "system";
+  var options = [["light","Light"],["dark","Dark"],["system","System"]];
+  el.innerHTML = options.map(function(o){
+    return '<button class="'+(mode===o[0]?"active":"")+'" onclick="setTheme(\''+o[0]+'\')">'+o[1]+'</button>';
+  }).join("");
+}
+
+if(window.matchMedia){
+  var systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  var onSystemThemeChange = function(){ if((DATA.settings.theme || "system") === "system") applyTheme(); };
+  if(systemThemeQuery.addEventListener) systemThemeQuery.addEventListener("change", onSystemThemeChange);
+  else if(systemThemeQuery.addListener) systemThemeQuery.addListener(onSystemThemeChange);
+}
+
+document.addEventListener("change", function(e){
+  if(e.target && e.target.id === "setting-threshold"){
+    var val = parseInt(e.target.value, 10);
+    if(val && val > 0){
+      DATA.settings.thresholdDays = val;
+      saveData();
+    }
+  }
+});
+
+/* =========================================================
+   BACKUP: EXPORT / IMPORT
+   ========================================================= */
+// Saves a file via the share sheet first (so OneDrive, Drive, Messages, etc. show up as
+// destinations), falling back to the OS "Save As" picker, then a plain download link.
+// A .txt filename paired with a text/plain MIME type is what gets recognized as shareable
+// by Android's share sheet.
+async function saveFile(filename, content, mime){
+  mime = mime || "text/plain";
+  try{
+    if(navigator.canShare && typeof File !== "undefined"){
+      var file = new File([content], filename, { type: mime });
+      if(navigator.canShare({ files: [file] })){
+        await navigator.share({ files: [file] });
+        showToast("Backup shared.");
+        return true;
+      }
+    }
+  }catch(e){
+    if(e && e.name === "AbortError") return false;
+  }
+  if(window.showSaveFilePicker){
+    try{
+      var accept = {}; accept[mime] = ["." + filename.split(".").pop()];
+      var handle = await window.showSaveFilePicker({ suggestedName: filename, types: [{ description: "File", accept: accept }] });
+      var writable = await handle.createWritable();
+      await writable.write(content);
+      await writable.close();
+      showToast("Backup saved.");
+      return true;
+    }catch(e){
+      if(e && e.name === "AbortError") return false;
+    }
+  }
+  var blob = content instanceof Blob ? content : new Blob([content], { type: mime });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("Backup downloaded.");
+  return true;
+}
+
+function exportData(){
+  var filename = "bendedknee-backup-" + todayISO() + ".txt";
+  saveFile(filename, JSON.stringify(DATA, null, 2), "text/plain");
+}
+window.exportData = exportData;
+
+function importData(evt){
+  var file = evt.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var parsed = JSON.parse(reader.result);
+      if(!parsed || typeof parsed !== "object") throw new Error("Invalid file");
+      if(!confirm("This will replace all current data with the backup file. Continue?")) return;
+      var fresh = defaultData();
+      for(var k in fresh){ if(parsed[k] !== undefined) fresh[k] = parsed[k]; }
+      fresh.requests.forEach(function(r){ if(!r.history) r.history = []; });
+      DATA = fresh;
+      saveData();
+      showToast("Backup restored.");
+      showView("today");
+    }catch(e){
+      alert("Couldn't read that file. Make sure it's a Bended Knee backup file.");
+    }
+    evt.target.value = "";
+  };
+  reader.readAsText(file);
+}
+window.importData = importData;
+
+/* =========================================================
+   SHEET / TOAST HELPERS
+   ========================================================= */
+function openSheet(html){
+  var overlay = document.getElementById("sheet-overlay");
+  var wasActive = overlay.classList.contains("active");
+  var content = document.getElementById("sheet-content");
+  content.innerHTML = html;
+  content.scrollTop = 0;
+  overlay.classList.add("active");
+  if(!wasActive && !suppressHistoryPush){
+    history.pushState({ nav:false, sheet:true }, "");
+    sheetHasHistoryEntry = true;
+  }
+}
+window.openSheet = openSheet;
+
+function closeSheet(){
+  var overlay = document.getElementById("sheet-overlay");
+  var wasActive = overlay.classList.contains("active");
+  overlay.classList.remove("active");
+  document.getElementById("sheet-content").innerHTML = "";
+  if(wasActive && sheetHasHistoryEntry && !suppressHistoryPush){
+    sheetHasHistoryEntry = false;
+    history.back();
+  }
+}
+window.closeSheet = closeSheet;
+
+document.getElementById("sheet-overlay").addEventListener("click", function(e){
+  if(e.target === this) closeSheet();
+});
+
+var toastTimer = null;
+function showToast(msg){
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 2200);
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+suppressHistoryPush = true;
+history.replaceState(currentNavState(), "");
+suppressHistoryPush = false;
+applyTheme();
+updateFabVisibility();
+render();
+
+})();
+</script>
+</body>
+</html>
