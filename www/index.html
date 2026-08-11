@@ -155,6 +155,19 @@
   .btn-block{width:100%;}
   .btn-sm{padding:6px 11px; font-size:0.78rem;}
   .btn-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .btn-row .btn{flex:1 1 0; min-width:0;}
+  .btn-row + .btn-row{margin-top:8px;}
+  .icon-btn-row{display:flex; justify-content:flex-end; gap:8px; margin-top:14px;}
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%; flex-shrink:0; padding:0;
+    background:var(--surface); border:1px solid var(--hairline); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform 0.05s ease, background-color 0.15s ease;
+  }
+  .icon-btn:active{transform:scale(0.93); background:var(--surface-raised);}
+  .icon-btn svg{width:17px; height:17px; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .icon-btn.neutral svg{stroke:var(--ink-soft);}
+  .icon-btn.danger svg{stroke:var(--rust);}
   .fab{
     position:fixed; bottom:86px; right:18px; width:54px; height:54px; border-radius:50%;
     background:var(--brand); color:#F6F2E5; border:none; box-shadow:0 4px 16px rgba(42,63,49,0.35);
@@ -210,6 +223,85 @@
   .sheet-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
   .sheet-header h3{font-size:1.15rem;}
   .close-x{background:none; border:none; font-size:1.3rem; color:var(--ink-soft); cursor:pointer; padding:4px 8px;}
+
+  /* ---- Pray Now: immersive full-screen prayer flow ---- */
+  .pray-now-overlay{
+    position:fixed; inset:0; z-index:70;
+    display:none; flex-direction:column;
+    background:linear-gradient(165deg, var(--brand-dark) 0%, var(--brand) 60%, var(--brand-dark) 100%);
+    color:#F6F2E5;
+  }
+  .pray-now-overlay.active{display:flex;}
+  .pray-now-topbar{
+    flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+    padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 4px 20px;
+  }
+  .pray-now-progress{
+    font-size:0.72rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+    color:rgba(246,242,229,0.65); font-family:var(--font-body);
+  }
+  .pray-now-close{
+    background:rgba(255,255,255,0.12); border:none; border-radius:50%;
+    width:34px; height:34px; color:#F6F2E5; font-size:1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .pray-now-close:active{background:rgba(255,255,255,0.24);}
+  .pray-now-scroll{flex:1; overflow-y:auto; display:flex; flex-direction:column; justify-content:center;}
+  .pray-now-card{
+    padding:14px 28px 24px 28px;
+    animation:prayNowFadeIn 0.4s ease;
+  }
+  @keyframes prayNowFadeIn{
+    from{opacity:0; transform:translateY(12px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .pray-now-subject{
+    font-family:var(--font-display); font-weight:600; font-size:1.4rem;
+    text-align:center; color:#FFFFFF; margin-bottom:20px; line-height:1.3;
+  }
+  .pray-now-text{
+    font-family:var(--font-display); font-size:1.3rem; line-height:1.65;
+    text-align:center; color:#F6F2E5; margin:0 0 22px 0;
+  }
+  .pray-now-meta{
+    text-align:center; font-size:0.78rem; color:rgba(246,242,229,0.65); margin:0 0 4px 0;
+  }
+  .pray-now-done{text-align:center; padding:20px 0;}
+  .pray-now-actions{
+    flex-shrink:0; display:flex; flex-direction:column; gap:8px;
+    padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 22px) 14px;
+  }
+  /* Prev/Next: icon-only controls flanking the two action buttons, same
+     circular-glass treatment as the close (✕) button up top, so they read
+     as navigation rather than a third button style. */
+  .pray-now-actions-row{display:flex; align-items:center; gap:6px;}
+  .pray-now-actions-row .btn{flex:1 1 0; min-width:0;}
+  .pray-now-nav-btn{
+    background:rgba(255,255,255,0.12); border:none; border-radius:50%;
+    width:44px; height:44px; min-width:44px; flex-shrink:0;
+    color:#F6F2E5; font-size:1.3rem; font-family:var(--font-body); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pray-now-nav-btn:active{background:rgba(255,255,255,0.24); transform:scale(0.94);}
+  .pray-now-nav-btn:disabled{opacity:0.32; cursor:not-allowed;}
+  .pray-now-nav-btn:disabled:active{transform:none; background:rgba(255,255,255,0.12);}
+  .btn-on-brand.btn-primary{background:#F6F2E5; color:var(--brand-dark);}
+  .btn-on-brand.btn-secondary{background:rgba(255,255,255,0.12); color:#F6F2E5; border-color:rgba(255,255,255,0.28);}
+  /* Confirmation: a quick, localized color + scale settle on the tapped
+     button itself (using the app's existing "done" color, --sage — same
+     one used for a completed checklist item or an on toggle) so Prayed
+     and Answered read as unmistakably confirmed, without a separate
+     overlay component covering the card. */
+  .pray-now-actions-row .btn{
+    transition:background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease, transform 0.16s ease, box-shadow 0.22s ease;
+  }
+  .pray-now-actions-row .btn.confirmed{
+    background:var(--sage);
+    color:#F6F2E5;
+    border-color:var(--sage);
+    transform:scale(1.04);
+    box-shadow:0 0 0 4px rgba(255,255,255,0.16);
+  }
 
   .back-link{background:none; border:none; color:var(--text-accent); font-weight:700; font-size:0.85rem; cursor:pointer; padding:6px 0 12px 0; display:flex; align-items:center; gap:4px;}
 
@@ -277,6 +369,8 @@
       <div class="stat-box"><span class="num" id="stat-today">0</span><span class="lbl">Prayed today</span></div>
       <div class="stat-box"><span class="num" id="stat-streak"></span><span class="lbl">Day streak</span></div>
     </div>
+
+    <button class="btn btn-primary btn-block" id="pray-now-btn" style="margin-top:12px; margin-bottom:20px;" onclick="startPrayNow()">Pray now</button>
 
     <div class="section-title"><h2>Needs prayer</h2><span class="count" id="needs-count"></span></div>
     <div class="card tight" id="needs-list"></div>
@@ -367,6 +461,17 @@
 
 <div class="sheet-overlay" id="sheet-overlay">
   <div class="sheet" id="sheet-content"></div>
+</div>
+
+<div class="pray-now-overlay" id="pray-now-overlay">
+  <div class="pray-now-topbar">
+    <span class="pray-now-progress" id="pray-now-progress"></span>
+    <button class="pray-now-close" onclick="closePrayNow()" aria-label="End prayer time">✕</button>
+  </div>
+  <div class="pray-now-scroll">
+    <div class="pray-now-card" id="pray-now-card"></div>
+  </div>
+  <div class="pray-now-actions" id="pray-now-actions"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -511,6 +616,23 @@ function streakCount(){
   return count;
 }
 
+// Active requests not yet prayed for today, worst-neglected first (pinned
+// requests always lead). Shared by the Today dashboard and Pray Now, so
+// both always agree on what still needs prayer.
+function needsPrayerList(){
+  var today = todayISO();
+  var active = DATA.requests.filter(function(r){ return r.status === "active"; });
+  var needs = active.filter(function(r){ return !prayedToday(r); });
+  needs.sort(function(a,b){
+    if(!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+    var la = lastPrayedDate(a), lb = lastPrayedDate(b);
+    var da = la ? daysBetween(la, today) : 99999;
+    var db = lb ? daysBetween(lb, today) : 99999;
+    return db - da;
+  });
+  return needs;
+}
+
 /* =========================================================
    VIEW ROUTING
    ========================================================= */
@@ -563,6 +685,18 @@ function pushNavStateIfNeeded(){
 
 window.addEventListener("popstate", function(e){
   suppressHistoryPush = true;
+
+  // Closing the immersive Pray Now overlay takes priority over anything else.
+  var prayOverlay = document.getElementById("pray-now-overlay");
+  if(prayOverlay && prayOverlay.classList.contains("active")){
+    prayOverlay.classList.remove("active");
+    prayNowQueue = [];
+    prayNowIndex = 0;
+    prayNowCurrentId = null;
+    prayNowHasHistoryEntry = false;
+    render();
+  }
+
   var overlay = document.getElementById("sheet-overlay");
   if(overlay && overlay.classList.contains("active")){
     overlay.classList.remove("active");
@@ -621,14 +755,7 @@ function renderToday(){
   document.getElementById("stat-streak").innerHTML = flameSvg + streak;
 
   // Needs prayer: active requests not prayed today, worst-neglected first
-  var needs = active.filter(function(r){ return !prayedToday(r); });
-  needs.sort(function(a,b){
-    if(!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
-    var la = lastPrayedDate(a), lb = lastPrayedDate(b);
-    var da = la ? daysBetween(la, today) : 99999;
-    var db = lb ? daysBetween(lb, today) : 99999;
-    return db - da;
-  });
+  var needs = needsPrayerList();
   document.getElementById("needs-count").textContent = needs.length ? needs.length + " waiting" : "";
   document.getElementById("needs-list").innerHTML = needs.length === 0
     ? '<div class="empty-state"><span class="eyebrow">All caught up</span>Every active request has been prayed for today.</div>'
@@ -682,6 +809,140 @@ function markPrayed(id){
   render();
 }
 window.markPrayed = markPrayed;
+
+/* =========================================================
+   PRAY NOW: immersive full-screen prayer flow
+   ========================================================= */
+var prayNowQueue = [];
+var prayNowIndex = 0;
+var prayNowHasHistoryEntry = false;
+var prayNowCurrentId = null; // id of the request behind whatever card is on screen right now
+
+function startPrayNow(){
+  var queue = needsPrayerList();
+  if(queue.length === 0){
+    showToast("You're all caught up — nothing left to pray through today.");
+    return;
+  }
+  prayNowQueue = queue;
+  prayNowIndex = 0;
+
+  document.getElementById("pray-now-overlay").classList.add("active");
+  if(!suppressHistoryPush){
+    history.pushState({ nav:false, prayNow:true }, "");
+    prayNowHasHistoryEntry = true;
+  }
+  renderPrayNowCard();
+}
+window.startPrayNow = startPrayNow;
+
+function closePrayNow(){
+  var overlay = document.getElementById("pray-now-overlay");
+  var wasActive = overlay.classList.contains("active");
+  overlay.classList.remove("active");
+  prayNowQueue = [];
+  prayNowIndex = 0;
+  prayNowCurrentId = null;
+  if(wasActive && prayNowHasHistoryEntry && !suppressHistoryPush){
+    prayNowHasHistoryEntry = false;
+    history.back();
+  }
+  render();
+}
+window.closePrayNow = closePrayNow;
+
+function renderPrayNowCard(){
+  var cardEl = document.getElementById("pray-now-card");
+  var actionsEl = document.getElementById("pray-now-actions");
+  var progressEl = document.getElementById("pray-now-progress");
+  actionsEl.style.pointerEvents = "";
+
+  if(prayNowIndex >= prayNowQueue.length){
+    var count = prayNowQueue.length;
+    progressEl.textContent = "";
+    prayNowCurrentId = null;
+    cardEl.innerHTML = '<div class="pray-now-done">'
+      + '<div class="pray-now-subject">Prayed through all '+count+' request'+(count===1?"":"s")+'</div>'
+      + '<p class="pray-now-text" style="font-size:1rem;">Well done!</p>'
+      + '</div>';
+    actionsEl.innerHTML = '<button class="btn btn-primary btn-on-brand" onclick="closePrayNow()">Done</button>';
+    return;
+  }
+
+  progressEl.textContent = (prayNowIndex+1)+" of "+prayNowQueue.length;
+
+  cardEl.classList.remove("pray-now-card");
+  void cardEl.offsetWidth; // force reflow so the fade-in animation replays for each card
+  cardEl.classList.add("pray-now-card");
+
+  var r = prayNowQueue[prayNowIndex];
+  prayNowCurrentId = r.id;
+  var timesPrayed = (r.history||[]).length;
+  var last = lastPrayedDate(r);
+
+  cardEl.innerHTML = '<div class="pray-now-subject">'+(r.pinned ? '&#9679; ' : '')+escapeHTML(r.category)+'</div>'
+    + '<p class="pray-now-text">'+escapeHTML(r.text)+'</p>'
+    + '<p class="pray-now-meta">Prayed for this '+timesPrayed+' time'+(timesPrayed===1?"":"s")+(last?' · last on '+formatDateDisplay(last):'')+'</p>';
+
+  actionsEl.innerHTML = '<div class="pray-now-actions-row">'
+    + '<button class="pray-now-nav-btn" onclick="prayNowPrevItem()"'+(prayNowIndex===0?" disabled":"")+' aria-label="Previous">‹</button>'
+    + '<button class="btn btn-secondary btn-on-brand" onclick="markPrayNowItemAnswered(this)">Answered</button>'
+    + '<button class="btn btn-primary btn-on-brand" onclick="completePrayNowItem(this)">Prayed</button>'
+    + '<button class="pray-now-nav-btn" onclick="skipPrayNowItem()" aria-label="Next">›</button>'
+    + '</div>';
+}
+
+// Confirms the tapped button in place — a quick color + scale settle,
+// using the app's existing "done" color — instead of a separate overlay
+// covering the card. Once the animation's had a moment to register,
+// applies the actual change and advances to the next card.
+function prayNowConfirmButton(btnEl, thenAdvance){
+  var actionsEl = document.getElementById("pray-now-actions");
+  actionsEl.style.pointerEvents = "none"; // block double-taps until the advance below runs
+  if(btnEl) btnEl.classList.add("confirmed");
+  setTimeout(thenAdvance, 380);
+}
+
+function completePrayNowItem(btnEl){
+  var id = prayNowCurrentId;
+  prayNowConfirmButton(btnEl, function(){
+    if(id) markPrayed(id);
+    prayNowIndex++;
+    renderPrayNowCard();
+  });
+}
+window.completePrayNowItem = completePrayNowItem;
+
+// Marks the request behind the current card answered, today, without a
+// note or leaving the immersive flow — quick logging in the moment. A
+// fuller note can always be added afterward from the request's detail sheet.
+function markPrayNowItemAnswered(btnEl){
+  var id = prayNowCurrentId;
+  prayNowConfirmButton(btnEl, function(){
+    var r = id ? getRequest(id) : null;
+    if(r){
+      r.status = "answered";
+      r.answeredDate = todayISO();
+      saveData();
+    }
+    prayNowIndex++;
+    renderPrayNowCard();
+  });
+}
+window.markPrayNowItemAnswered = markPrayNowItemAnswered;
+
+function skipPrayNowItem(){
+  prayNowIndex++;
+  renderPrayNowCard();
+}
+window.skipPrayNowItem = skipPrayNowItem;
+
+function prayNowPrevItem(){
+  if(prayNowIndex <= 0) return;
+  prayNowIndex--;
+  renderPrayNowCard();
+}
+window.prayNowPrevItem = prayNowPrevItem;
 
 /* =========================================================
    REQUESTS
@@ -798,9 +1059,15 @@ function openRequestDetail(id){
   } else {
     body += '<button class="btn btn-secondary" onclick="reopenRequest(\''+r.id+'\')">Still praying — reopen</button>';
   }
-  body += '<button class="btn btn-secondary" onclick="openRequestFormSheet(\''+r.id+'\')">Edit</button>';
-  body += '<button class="btn btn-danger" onclick="deleteRequest(\''+r.id+'\')">Delete</button>';
   body += '</div>';
+  body += '<div class="icon-btn-row">'
+    + '<button class="icon-btn neutral" onclick="openRequestFormSheet(\''+r.id+'\')" aria-label="Edit request">'
+    + '<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'
+    + '</button>'
+    + '<button class="icon-btn danger" onclick="deleteRequest(\''+r.id+'\')" aria-label="Delete request">'
+    + '<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>'
+    + '</button>'
+    + '</div>';
 
   openSheet(body);
 }
